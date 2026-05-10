@@ -1,0 +1,335 @@
+﻿<div class="page-container">
+    <div class="wave">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+
+    <div class="container container-content">
+
+        <!-- Header -->
+        <div class="page-header glassy-card">
+            <h1>{{ mode === 'create' ? 'Create New Course' : 'Manage Course' }}</h1>
+            <p>Set up your curriculum, upload materials, and assign tasks to students.</p>
+        </div>
+
+        <!-- TABS -->
+        <div class="tabs glassy-card" *ngIf="mode === 'edit'">
+            <button [class.active]="activeTab === 'details'" (click)="activeTab = 'details'">
+                <i class="fa-solid fa-circle-info"></i> Course Details
+            </button>
+            <button [class.active]="activeTab === 'modules'" (click)="activeTab = 'modules'">
+                <i class="fa-solid fa-book-open"></i> Curriculum
+            </button>
+            <button [class.active]="activeTab === 'tests'" (click)="activeTab = 'tests'">
+                <i class="fa-solid fa-file-contract"></i> Manage Tests
+            </button>
+            <button [class.active]="activeTab === 'history'" (click)="activeTab = 'history'">
+                <i class="fa-solid fa-chart-column"></i> Test History
+            </button>
+            <button [class.active]="activeTab === 'grading'" (click)="activeTab = 'grading'">
+                <i class="fa-solid fa-check-double"></i> Grade Assignments
+            </button>
+        </div>
+
+        <div class="card content-card glassy-card">
+
+            <!-- Tab: Details -->
+            <div *ngIf="activeTab === 'details'">
+                <div class="form-group">
+                    <h2>Course Settings</h2>
+                </div>
+                <div class="form-group">
+                    <label>Course Title</label>
+                    <input class="input" [(ngModel)]="courseTitle" placeholder="e.g. Intro to React" />
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea class="textarea input" [(ngModel)]="courseDescription"
+                        placeholder="What will students learn?"></textarea>
+                </div>
+                <div class="form-group row">
+                    <div class="col">
+                        <label>Cover Image URL (Optional)</label>
+                        <input class="input" [(ngModel)]="courseImageUrl" placeholder="https://..." />
+                    </div>
+                    <div class="col">
+                        <label>Department</label>
+                        <select class="input select-input" [(ngModel)]="courseDepartmentId">
+                            <option [value]="1" class="option-dark">Computer Science</option>
+                            <option [value]="2" class="option-dark">Mathematics</option>
+                            <option [value]="3" class="option-dark">Business</option>
+                            <option [value]="4" class="option-dark">Arts</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="publish-row">
+                    <input type="checkbox" [(ngModel)]="isPublished" />
+                    <strong>Publish Course</strong>
+                    <span>(Visible to students)</span>
+                </div>
+                <button class="btn-primary" (click)="saveCourse()" style="margin-top: 20px;">
+                    <i class="fa-solid fa-floppy-disk"></i>
+                    {{ mode === 'create' ? 'Create Course' : 'Save Changes' }}
+                </button>
+            </div>
+
+            <!-- Tab: Modules & Curriculum -->
+            <div *ngIf="activeTab === 'modules'">
+                <div class="layout-grid">
+                    <div class="module-list">
+                        <h3 class="section-title">Curriculum Overview</h3>
+                        <div class="module-card item-card" *ngFor="let mod of modules">
+                            <h4>{{ mod.title }}</h4>
+                            <div class="content-item sub-item-card" *ngFor="let c of mod.contents">
+                                <span>
+                                    <span class="type-badge">
+                                        <i class="fa-solid fa-file"></i> DOC
+                                    </span>
+                                    {{ c.title }}
+                                </span>
+                                <a [href]="c.filePath" target="_blank" class="link-btn">View</a>
+                            </div>
+                            <div class="content-item assignment info-card" *ngFor="let a of mod.assignments">
+                                <span>
+                                    <span class="type-badge">
+                                        <i class="fa-solid fa-thumbtack"></i> TASK
+                                    </span>
+                                    {{ a.title }}
+                                    <span style="color: var(--text-muted); margin-left: 5px;">
+                                        ({{ a.maxMarks }} marks)
+                                    </span>
+                                </span>
+                            </div>
+                        </div>
+                        <div *ngIf="modules.length === 0" class="empty-state">No modules yet.</div>
+                    </div>
+
+                    <div class="add-forms">
+                        <!-- Add Module -->
+                        <div class="form-box sub-item-card" style="margin-bottom: 25px;">
+                            <h4>Add Module</h4>
+                            <input class="input" [(ngModel)]="newModuleTitle" placeholder="e.g. Week 1: Basics" />
+                            <button class="btn-primary sm" (click)="addModule()">
+                                <i class="fa-solid fa-plus"></i> Add Module
+                            </button>
+                        </div>
+
+                        <hr class="divider">
+
+                        <!-- Add Material -->
+                        <div class="form-box sub-item-card" *ngIf="modules.length > 0" style="margin-bottom: 25px;">
+                            <h4>Add Material</h4>
+                            <select class="input select-input mb-2" [(ngModel)]="selectedModuleIdForContent">
+                                <option [value]="null" disabled selected class="option-dark">Select Module...</option>
+                                <option *ngFor="let m of modules" [value]="m.moduleId" class="option-dark">
+                                    {{ m.title }}
+                                </option>
+                            </select>
+                            <input class="input mb-2" [(ngModel)]="newContentTitle" placeholder="Material Title" />
+                            <select class="input select-input mb-2" [(ngModel)]="newContentType">
+                                <option value="LINK" class="option-dark">External Link</option>
+                                <option value="PDF" class="option-dark">PDF / Document URL</option>
+                                <option value="VIDEO" class="option-dark">Video Link</option>
+                            </select>
+                            <input class="input" [(ngModel)]="newContentFilePath" placeholder="Resource URL..." />
+                            <button class="btn-primary sm mt-2" (click)="addContent()">
+                                <i class="fa-solid fa-plus"></i> Add Material
+                            </button>
+                        </div>
+
+                        <hr class="divider" *ngIf="modules.length > 0">
+
+                        <!-- Add Assignment -->
+                        <div class="form-box sub-item-card" *ngIf="modules.length > 0">
+                            <h4>Create Assignment</h4>
+                            <select class="input select-input mb-2" [(ngModel)]="selectedModuleIdForAssignment">
+                                <option [value]="null" disabled selected class="option-dark">Select Module...</option>
+                                <option *ngFor="let m of modules" [value]="m.moduleId" class="option-dark">
+                                    {{ m.title }}
+                                </option>
+                            </select>
+                            <input class="input mb-2" [(ngModel)]="newAssignmentTitle"
+                                placeholder="Assignment Title" />
+                            <textarea class="textarea input mb-2" [(ngModel)]="newAssignmentDesc"
+                                placeholder="Instructions..."></textarea>
+                            <input type="number" class="input mb-2" [(ngModel)]="newAssignmentMarks"
+                                placeholder="Max Marks (e.g. 10)" />
+                            <label>Due Date (Optional)</label>
+                            <input type="datetime-local" class="input mb-2" [(ngModel)]="newAssignmentDueDate" />
+                            <button class="btn-primary sm mt-2" (click)="addAssignment()">
+                                <i class="fa-solid fa-plus"></i> Create Assignment
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Grading -->
+            <div *ngIf="activeTab === 'grading'">
+                <div class="layout-grid">
+                    <div class="selector">
+                        <h3 class="section-title">Select Assignment to Grade</h3>
+                        <div *ngFor="let mod of modules">
+                            <div class="assignment-btn item-card" *ngFor="let a of mod.assignments"
+                                (click)="loadSubmissionsForAssignment(a.assignmentId)">
+                                {{ mod.title }} — {{ a.title }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="submissions">
+                        <h3 class="section-title">Submissions</h3>
+                        <div *ngIf="submissions.length === 0" class="empty-state">
+                            Select an assignment or no submissions yet.
+                        </div>
+
+                        <div class="submission-card info-card" *ngFor="let sub of submissions">
+                            <div class="sub-header">
+                                <strong>{{ sub.student?.fullName }}</strong>
+                                <span class="badge" [class.graded]="sub.marksAwarded != null">
+                                    {{ sub.marksAwarded != null ? sub.marksAwarded + ' Marks' : 'Needs Grading' }}
+                                </span>
+                            </div>
+                            <p class="sub-text">"{{ sub.submissionText }}"</p>
+                            <a *ngIf="sub.fileUrl" [href]="sub.fileUrl" target="_blank" class="link-btn">
+                                <i class="fa-solid fa-paperclip"></i> Attached File
+                            </a>
+
+                            <div class="grade-action" *ngIf="gradingSubmissionId !== sub.submissionId">
+                                <button class="btn-primary sm" (click)="startGrading(sub)">
+                                    <i class="fa-solid fa-pen"></i> Grade / Edit Grade
+                                </button>
+                            </div>
+
+                            <div class="grading-form" *ngIf="gradingSubmissionId === sub.submissionId">
+                                <label>Marks:</label>
+                                <input type="number" class="input sm mb-2" [(ngModel)]="gradingMarks"
+                                    style="width: 100px;" />
+                                <label>Feedback:</label>
+                                <textarea class="textarea input" [(ngModel)]="gradingFeedback"
+                                    placeholder="Optional feedback..."></textarea>
+                                <div class="grading-actions">
+                                    <button class="btn-primary sm" (click)="saveGrade(sub)">
+                                        <i class="fa-solid fa-floppy-disk"></i> Save
+                                    </button>
+                                    <button class="btn-secondary sm" (click)="cancelGrading()">
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Tests -->
+            <div *ngIf="activeTab === 'tests'">
+                <div class="layout-grid">
+                    <div class="selector">
+                        <h3 class="section-title">Course Tests</h3>
+                        <div *ngIf="tests.length === 0" class="empty-state">No tests available yet.</div>
+                        <div class="test-card item-card" *ngFor="let test of tests">
+                            <div>
+                                <strong>{{ test.title }}</strong>
+                                <span>
+                                    <i class="fa-solid fa-clock"></i> {{ test.durationMinutes }} min
+                                </span>
+                            </div>
+                            <a [routerLink]="['/test', test.testId]" class="btn-primary sm">
+                                View / Manage <i class="fa-solid fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="add-forms">
+                        <div class="form-box sub-item-card">
+                            <h4><i class="fa-solid fa-plus"></i> Create Test</h4>
+                            <input [(ngModel)]="newTestTitle" placeholder="Test title..." class="input mb-2" />
+                            <label>Duration (Minutes)</label>
+                            <input [(ngModel)]="newTestDuration" type="number"
+                                placeholder="Duration (min)" class="input mb-2" />
+                            <button class="btn-primary sm mt-2" (click)="createTest()">
+                                <i class="fa-solid fa-plus"></i> Create Test
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Test History -->
+            <div *ngIf="activeTab === 'history'">
+                <h3 class="section-title">Test History & Marks</h3>
+                <div *ngIf="testHistory.length === 0" class="empty-state">No tests or attempt history yet.</div>
+
+                <div *ngIf="testHistory.length > 0" class="history-panel">
+                    <div class="form-group">
+                        <label>Select Test</label>
+                        <select
+                            class="input select-input"
+                            [ngModel]="selectedHistoryTestId"
+                            (ngModelChange)="onHistoryTestChange($event)">
+                            <option *ngFor="let test of testHistory" [ngValue]="test.testId" class="option-dark">
+                                {{ test.title }}
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="history-summary item-card" *ngIf="selectedHistorySummary">
+                        <div class="history-top">
+                            <div>
+                                <h4>{{ selectedHistorySummary.title }}</h4>
+                                <p class="history-subtitle">Student score history for this specific test</p>
+                            </div>
+                            <a [routerLink]="['/test', selectedHistorySummary.testId]" class="btn-primary sm">
+                                Open Test <i class="fa-solid fa-arrow-right"></i>
+                            </a>
+                        </div>
+
+                        <div class="history-stats">
+                            <div class="history-stat sub-item-card">
+                                <span>Attempts</span>
+                                <strong>{{ selectedHistorySummary.attemptsCount }}</strong>
+                            </div>
+                            <div class="history-stat sub-item-card">
+                                <span>Avg Marks</span>
+                                <strong>{{ selectedHistorySummary.averageScore || '—' }}</strong>
+                            </div>
+                            <div class="history-stat sub-item-card">
+                                <span>Top Marks</span>
+                                <strong>{{ selectedHistorySummary.topScore || '—' }}</strong>
+                            </div>
+                        </div>
+
+                        <div class="history-latest" *ngIf="selectedHistorySummary.latestAttemptAt">
+                            Last activity: {{ selectedHistorySummary.latestAttemptAt | date:'medium' }}
+                        </div>
+                    </div>
+
+                    <div class="history-attempts" *ngIf="selectedHistorySummary">
+                        <div class="empty-state" *ngIf="selectedTestAttempts.length === 0">
+                            No completed student attempts yet for {{ selectedHistorySummary.title }}.
+                        </div>
+
+                        <div class="attempt-row sub-item-card" *ngFor="let attempt of selectedTestAttempts">
+                            <div class="attempt-meta">
+                                <strong>{{ attempt.user?.fullName || attempt.user?.email || 'Student' }}</strong>
+                                <span>
+                                    {{ selectedHistorySummary.title }}
+                                </span>
+                                <span *ngIf="attempt.completedAt || attempt.startedAt">
+                                    {{ (attempt.completedAt || attempt.startedAt) | date:'medium' }}
+                                </span>
+                            </div>
+                            <div class="attempt-score">
+                                <span class="attempt-score-label">Marks</span>
+                                <strong>{{ attempt.score ?? '—' }}</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

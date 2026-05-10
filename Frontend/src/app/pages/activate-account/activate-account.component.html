@@ -1,0 +1,44 @@
+﻿<section class="auth-section">
+    <!-- Wavy Background -->
+    <div class="wave">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+
+    <!-- Content -->
+    <div class="content auth-container">
+
+        <!-- Success Message -->
+        <div class="alert alert-success" *ngIf="successMessage">
+            <i class="fa-solid fa-circle-check" style="margin-right: 5px;"></i> {{ successMessage }}
+        </div>
+
+        <!-- Error Message -->
+        <div class="alert alert-error" *ngIf="errorMessage">
+            <i class="fa-solid fa-triangle-exclamation" style="margin-right: 5px;"></i> {{ errorMessage }}
+        </div>
+
+        <form class="form" *ngIf="!successMessage" (submit)="onSubmit()">
+            <div class="title">Verify Account<br><span>enter the 6-digit code</span></div>
+
+            <!-- OTP Digit Inputs -->
+            <div class="otp-container" (paste)="onPaste($event)">
+                <input *ngFor="let digit of code; let i = index" [id]="'code-' + i" type="text" inputmode="numeric"
+                    maxlength="1" class="otp-input input" [value]="digit" (input)="onInput($event, i)"
+                    (keydown)="onKeydown($event, i)" [class.otp-filled]="digit !== ''" />
+            </div>
+
+            <button type="button" class="button-confirm" (click)="onSubmit()" [disabled]="loading || !isCodeComplete">
+                <span *ngIf="loading">Verifying...</span>
+                <span *ngIf="!loading">Activate Account <i class="fa-solid fa-arrow-right"
+                        style="margin-left: 5px;"></i></span>
+            </button>
+
+            <div class="auth-footer">
+                <a routerLink="/login">Back to Sign In</a>
+            </div>
+        </form>
+
+    </div>
+</section>

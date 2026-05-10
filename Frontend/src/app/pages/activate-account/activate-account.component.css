@@ -1,0 +1,225 @@
+﻿@import url("https://fonts.googleapis.com/css?family=Poppins:200,300,400,500,600,700,800,900&display=swap");
+
+*:not(i) {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+}
+
+.auth-section {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: var(--bg-primary);
+    /* Dark background */
+}
+
+.auth-section .wave {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--wave-bg);
+    box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.4);
+    transition: 0.5s;
+}
+
+.auth-section .wave span {
+    content: "";
+    position: absolute;
+    width: 325vh;
+    height: 325vh;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, -75%);
+    background: var(--wave-circle);
+}
+
+.auth-section .wave span:nth-child(1) {
+    border-radius: 45%;
+    background: rgba(255, 255, 255, 0.05);
+    /* very faint white */
+    animation: animate 5s linear infinite;
+}
+
+.auth-section .wave span:nth-child(2) {
+    border-radius: 40%;
+    background: rgba(255, 255, 255, 0.02);
+    animation: animate 10s linear infinite;
+}
+
+.auth-section .wave span:nth-child(3) {
+    border-radius: 42.5%;
+    background: rgba(40, 40, 40, 0.8);
+    /* Dark contrast */
+    animation: animate 15s linear infinite;
+}
+
+@keyframes animate {
+    0% {
+        transform: translate(-50%, -75%) rotate(0deg);
+    }
+
+    100% {
+        transform: translate(-50%, -75%) rotate(360deg);
+    }
+}
+
+.content {
+    position: relative;
+    z-index: 1;
+}
+
+/* Card Styling */
+.form {
+    --input-focus: var(--text-primary);
+    --font-color: var(--text-primary);
+    --font-color-sub: var(--text-secondary);
+    --bg-color: var(--bg-secondary);
+    --main-color: var(--text-primary);
+
+    padding: 40px;
+    background: rgba(26, 26, 26, 0.8);
+    /* Translucent dark background */
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* Center aligning items */
+    justify-content: center;
+    gap: 20px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+    width: 100%;
+    max-width: 400px;
+}
+
+.title {
+    color: var(--font-color);
+    font-weight: 800;
+    font-size: 28px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.title span {
+    color: var(--font-color-sub);
+    font-weight: 400;
+    font-size: 16px;
+}
+
+/* OTP Specific Styling */
+.otp-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    margin: 10px 0;
+}
+
+.otp-input {
+    width: 48px !important;
+    /* Override .input width */
+    height: 56px !important;
+    text-align: center;
+    font-size: 22px;
+    font-weight: 700;
+    padding: 0 !important;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    background-color: rgba(0, 0, 0, 0.4) !important;
+    color: var(--font-color);
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.otp-input:focus {
+    border: 1px solid var(--input-focus) !important;
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+}
+
+.otp-filled {
+    border-color: rgba(255, 255, 255, 0.5) !important;
+    background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.button-confirm {
+    margin: 10px auto 0 auto;
+    width: 100%;
+    height: 48px;
+    border-radius: 8px;
+    border: none;
+    background-color: var(--font-color);
+    color: #000000;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.button-confirm:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
+}
+
+.button-confirm:active {
+    transform: translateY(0);
+}
+
+.button-confirm:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.auth-footer {
+    margin-top: 15px;
+    font-size: 14px;
+    color: var(--font-color-sub);
+    text-align: center;
+}
+
+.auth-footer a {
+    color: var(--font-color);
+    text-decoration: none;
+    font-weight: 600;
+    transition: opacity 0.3s;
+}
+
+.auth-footer a:hover {
+    opacity: 0.8;
+    text-decoration: underline;
+}
+
+.alert {
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+.alert-error {
+    background-color: var(--input-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--card-border);
+}
+
+.alert-success {
+    background-color: var(--input-bg);
+    color: var(--text-secondary);
+    border: 1px solid var(--card-border);
+    padding: 30px;
+    border-radius: 10px;
+    background: var(--card-bg);
+    backdrop-filter: blur(10px);
+}

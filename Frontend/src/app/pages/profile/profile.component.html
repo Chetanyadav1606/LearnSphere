@@ -1,0 +1,122 @@
+﻿<div class="page-container">
+    <div class="wave">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+
+    <div class="container container-content" *ngIf="!loading">
+
+        <!-- Profile Header -->
+        <div class="profile-header glassy-card anim-fade-up delay-1">
+            <div class="avatar">{{ getInitials() }}</div>
+            <div class="profile-info">
+                <h1>{{ user?.fullName || user?.email }}</h1>
+                <span class="role-badge" [class.instructor]="isInstructor">
+                    <i class="fa-solid" [class.fa-chalkboard-user]="isInstructor" [class.fa-user-graduate]="!isInstructor"></i>
+                    {{ isInstructor ? 'Instructor' : 'Student' }}
+                </span>
+                <p class="email">{{ user?.email }}</p>
+                <p class="joined">Member since {{ getMemberSince() }}</p>
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card item-card accent-blue anim-zoom-in delay-2">
+                <div class="stat-icon"><i class="fa-solid fa-book-open"></i></div>
+                <div class="stat-value">{{ isInstructor ? coursesCreated : totalEnrollments }}</div>
+                <div class="stat-label">{{ isInstructor ? 'Courses Created' : 'Courses Enrolled' }}</div>
+            </div>
+            <div class="stat-card item-card accent-green anim-zoom-in delay-3">
+                <div class="stat-icon"><i class="fa-solid fa-circle-check"></i></div>
+                <div class="stat-value">{{ completedTests }}</div>
+                <div class="stat-label">Tests {{ isInstructor ? 'in Courses' : 'Completed' }}</div>
+            </div>
+            <div class="stat-card item-card accent-purple anim-zoom-in delay-4">
+                <div class="stat-icon"><i class="fa-solid fa-chart-simple"></i></div>
+                <div class="stat-value">{{ avgScore || '—' }}</div>
+                <div class="stat-label">{{ isInstructor ? 'Avg Student Score' : 'Average Score' }}</div>
+            </div>
+            <div class="stat-card item-card accent-orange anim-zoom-in delay-5">
+                <div class="stat-icon"><i class="fa-solid fa-globe"></i></div>
+                <div class="stat-value">{{ totalCourses }}</div>
+                <div class="stat-label">Total Courses on Platform</div>
+            </div>
+        </div>
+
+        <!-- Student: Enrolled Courses -->
+        <div class="section" *ngIf="!isInstructor && enrolledCourses.length > 0">
+            <h2 class="section-title"><i class="fa-solid fa-book-bookmark"></i> My Enrolled Courses</h2>
+            <div class="courses-list">
+                <a [routerLink]="['/course', e.course?.courseId]" class="course-row sub-item-card"
+                    *ngFor="let e of enrolledCourses">
+                    <div class="course-info">
+                        <strong>{{ e.course?.title || 'Course' }}</strong>
+                        <span class="course-meta">{{ e.course?.department?.name || '' }}</span>
+                    </div>
+                    <span class="enrolled-date">Enrolled {{ e.enrolledAt ? (e.enrolledAt | date:'mediumDate') : '' }}</span>
+                    <span class="arrow"><i class="fa-solid fa-arrow-right"></i></span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Instructor: My Courses -->
+        <div class="section" *ngIf="isInstructor">
+            <h2 class="section-title"><i class="fa-solid fa-chalkboard"></i> Courses I Created</h2>
+            <div class="courses-list">
+                <a [routerLink]="['/course', c.courseId]" class="course-row sub-item-card"
+                    *ngFor="let c of getCreatedCourses()">
+                    <div class="course-info">
+                        <strong>{{ c.title }}</strong>
+                        <span class="course-meta">{{ c.department?.name || '' }}</span>
+                    </div>
+                    <span class="arrow"><i class="fa-solid fa-arrow-right"></i></span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Test History -->
+        <div class="section" *ngIf="testAttempts.length > 0">
+            <h2 class="section-title"><i class="fa-solid fa-clock-rotate-left"></i> Test History</h2>
+            <div class="test-history">
+                <div class="test-row sub-item-card" *ngFor="let a of testAttempts">
+                    <div class="test-info">
+                        <strong>{{ a.test?.title || 'Test' }}</strong>
+                        <span class="test-status" [class.completed]="a.status === 'COMPLETED'"
+                            [class.progress]="a.status !== 'COMPLETED'">
+                            <i class="fa-solid" [class.fa-check]="a.status === 'COMPLETED'" [class.fa-spinner]="a.status !== 'COMPLETED'"></i>
+                            {{ a.status }}
+                        </span>
+                    </div>
+                    <div class="test-score" *ngIf="a.score != null">
+                        Score: <strong>{{ a.score }}</strong>
+                    </div>
+                    <div class="test-date" *ngIf="a.startedAt">
+                        {{ a.startedAt | date:'medium' }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state glassy-card item-card"
+            *ngIf="!isInstructor && enrolledCourses.length === 0 && testAttempts.length === 0">
+            <i class="fa-solid fa-rocket empty-icon"></i>
+            <h3>Get Started!</h3>
+            <p>You haven't enrolled in any courses yet.</p>
+            <a routerLink="/courses" class="btn-primary">
+                Browse Courses <i class="fa-solid fa-arrow-right"></i>
+            </a>
+        </div>
+
+    </div>
+
+    <!-- Loading State -->
+    <div class="container container-content" *ngIf="loading">
+        <div class="loading-card glassy-card">
+            <i class="fa-solid fa-spinner fa-spin loading-icon"></i>
+            <p class="loading-text">Loading profile...</p>
+        </div>
+    </div>
+</div>

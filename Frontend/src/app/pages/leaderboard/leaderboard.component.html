@@ -1,0 +1,71 @@
+﻿<div class="page-container">
+    <div class="wave">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+
+    <div class="container container-content">
+
+        <!-- Header -->
+        <div class="leaderboard-header glassy-card">
+            <h1 class="leaderboard-title">🏆 Leaderboard</h1>
+            <p class="leaderboard-subtitle">Top students ranked by total test scores</p>
+        </div>
+
+        <!-- My Rank Card -->
+        <div class="my-rank-card glassy-card item-card" *ngIf="myRank > 0 && !loading">
+            <div class="my-rank-inner">
+                <span class="my-rank-label">Your Rank</span>
+                <span class="my-rank-value">#{{ myRank }}</span>
+                <span class="my-rank-out">out of {{ entries.length }} students</span>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div class="state-card glassy-card item-card" *ngIf="loading">
+            <p class="state-text">Loading leaderboard...</p>
+        </div>
+
+        <!-- Table -->
+        <div class="table-wrap glassy-card" *ngIf="!loading && entries.length > 0">
+            <table>
+                <thead>
+                    <tr>
+                        <th class="col-rank">Rank</th>
+                        <th class="col-name">Student</th>
+                        <th class="col-tests">Tests</th>
+                        <th class="col-avg">Avg Score</th>
+                        <th class="col-total">Total Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let e of entries" [class.highlight]="isMe(e)" [class.top3]="e.rank <= 3">
+                        <td class="rank-cell">
+                            <span class="medal" *ngIf="e.rank <= 3">{{ getMedal(e.rank) }}</span>
+                            <span class="rank-num" *ngIf="e.rank > 3">{{ e.rank }}</span>
+                        </td>
+                        <td>
+                            <div class="name-cell">
+                                <div class="avatar-sm">{{ e.fullName[0] }}</div>
+                                <span class="student-name">{{ e.fullName }}</span>
+                                <span class="you-badge" *ngIf="isMe(e)">YOU</span>
+                            </div>
+                        </td>
+                        <td class="muted-cell">{{ e.testsCompleted }}</td>
+                        <td class="muted-cell">{{ e.avgScore }}</td>
+                        <td class="score-cell">
+                            <strong class="score-value">{{ e.totalScore }}</strong>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Empty -->
+        <div class="state-card glassy-card item-card" *ngIf="!loading && entries.length === 0">
+            <p class="state-text">No test data yet. Take a test to appear on the leaderboard!</p>
+        </div>
+
+    </div>
+</div>

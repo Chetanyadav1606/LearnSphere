@@ -1,0 +1,92 @@
+﻿<section class="auth-section">
+    <!-- Wavy Background -->
+    <div class="wave">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+
+    <!-- Content -->
+    <div class="content auth-container">
+
+        <!-- Success message -->
+        <div class="alert alert-success" *ngIf="successMessage">
+            <i class="fa-solid fa-circle-check" style="margin-right: 5px;"></i> {{ successMessage }}
+            <br /><br />
+            <button class="button-confirm" style="width: auto; padding: 0 20px;" (click)="goToLogin()">Click here to
+                sign in <i class="fa-solid fa-arrow-right" style="margin-left: 5px;"></i></button>
+        </div>
+
+        <form class="form" [formGroup]="registerForm" (ngSubmit)="onSubmit()" novalidate *ngIf="!successMessage">
+            <div class="title">Welcome,<br><span>sign up to continue</span></div>
+
+            <!-- Error Alert -->
+            <div class="alert alert-error" *ngIf="errorMessage">
+                <i class="fa-solid fa-triangle-exclamation" style="margin-right: 5px;"></i> {{ errorMessage }}
+            </div>
+
+            <!-- Full Name -->
+            <div class="form-group">
+                <div class="input-group">
+                    <i class="fa-solid fa-user"></i>
+                    <input class="input" id="fullName" type="text" formControlName="fullName" placeholder="Full Name"
+                        [class.input-error]="fullName.invalid && fullName.touched" />
+                </div>
+                <div class="field-error" *ngIf="fullName.touched && fullName.errors?.['required']">
+                    Full name is required.
+                </div>
+                <div class="field-error" *ngIf="fullName.touched && fullName.errors?.['minlength']">
+                    Min 2 characters.
+                </div>
+            </div>
+
+            <!-- Email -->
+            <div class="form-group">
+                <div class="input-group">
+                    <i class="fa-solid fa-envelope"></i>
+                    <input class="input" id="email" type="email" formControlName="email" placeholder="Email"
+                        [class.input-error]="email.invalid && email.touched" />
+                </div>
+                <div class="field-error" *ngIf="email.touched && email.errors?.['required']">
+                    Email is required.
+                </div>
+                <div class="field-error" *ngIf="email.touched && email.errors?.['email']">
+                    Valid email required.
+                </div>
+            </div>
+
+            <!-- Password -->
+            <div class="form-group">
+                <div class="input-group">
+                    <i class="fa-solid fa-lock"></i>
+                    <input class="input" id="password" type="password" formControlName="password"
+                        placeholder="Password (Min 8 chars)"
+                        [class.input-error]="password.invalid && password.touched" />
+                </div>
+                <div class="field-error" *ngIf="password.touched && password.errors?.['required']">
+                    Password is required.
+                </div>
+                <div class="field-error" *ngIf="password.touched && password.errors?.['minlength']">
+                    Min 8 characters.
+                </div>
+            </div>
+
+            <!-- Role -->
+            <div class="form-group">
+                <select class="input select-input" id="role" formControlName="role">
+                    <option value="STUDENT" class="option-dark">I am a Student</option>
+                    <option value="INSTRUCTOR" class="option-dark">I am an Instructor</option>
+                </select>
+            </div>
+
+            <button class="button-confirm" type="submit" [disabled]="loading">
+                <span *ngIf="loading">Registering...</span>
+                <span *ngIf="!loading">Let`s go →</span>
+            </button>
+
+            <div class="auth-footer">
+                Already have an account? <a routerLink="/login">Sign in</a>
+            </div>
+        </form>
+    </div>
+</section>

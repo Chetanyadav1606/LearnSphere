@@ -1,0 +1,246 @@
+﻿<div class="page-container">
+    <div class="wave">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+
+    <div class="container container-content" *ngIf="!loading && course">
+
+        <!-- Course Hero -->
+        <div class="course-hero glassy-card">
+            <div class="hero-bg" *ngIf="course.imageUrl"
+                [style.backgroundImage]="'url(' + course.imageUrl + ')'"></div>
+            <div class="hero-content">
+                <span class="dept-badge">{{ course.department?.name || 'General' }}</span>
+                <h1>{{ course.title }}</h1>
+                <p>{{ course.description }}</p>
+                <p class="creator">Created by {{ course.creator?.fullName || 'Unknown' }}</p>
+
+                <button class="btn-enroll btn-primary" *ngIf="!isInstructor && !enrolled"
+                    (click)="enrollInCourse()">
+                    <i class="fa-solid fa-plus"></i> Enroll in this Course
+                </button>
+
+                <span class="enrolled-badge glassy-card" *ngIf="!isInstructor && enrolled">
+                    <i class="fa-solid fa-circle-check"></i> Enrolled
+                </span>
+
+                <div class="progress-wrap" *ngIf="!isInstructor && enrolled && progressTotal > 0">
+                    <div class="progress-label">
+                        <span>Course Progress</span>
+                        <span>{{ progressDone }} / {{ progressTotal }} items &nbsp;·&nbsp; {{ progressPercent }}%</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" [style.width.%]="progressPercent"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs glassy-card">
+            <button [class.active]="activeTab === 'content'" (click)="activeTab = 'content'">
+                <i class="fa-solid fa-book"></i> Content
+            </button>
+            <button [class.active]="activeTab === 'tests'" (click)="activeTab = 'tests'">
+                <i class="fa-solid fa-pencil"></i> Tests
+            </button>
+            <button [class.active]="activeTab === 'discussions'" (click)="activeTab = 'discussions'">
+                <i class="fa-solid fa-comments"></i> Discussions
+            </button>
+            <button [class.active]="activeTab === 'feedback'" (click)="activeTab = 'feedback'">
+                <i class="fa-solid fa-star"></i> Feedback
+            </button>
+        </div>
+
+        <!-- CONTENT TAB -->
+        <div class="tab-content glassy-card content-card" *ngIf="activeTab === 'content'">
+            <div *ngIf="modules.length === 0" class="empty-state">No modules yet.</div>
+            <div class="module-card item-card" *ngFor="let mod of modules">
+                <div class="module-header" (click)="toggleModule(mod.moduleId)">
+                    <i class="fa-solid"
+                        [class.fa-chevron-down]="expandedModule === mod.moduleId"
+                        [class.fa-chevron-right]="expandedModule !== mod.moduleId"></i>
+                    <strong>{{ mod.title }}</strong>
+                </div>
+                <div class="module-body" *ngIf="expandedModule === mod.moduleId">
+
+                    <div class="content-item sub-item-card"
+                        *ngFor="let item of moduleContents[mod.moduleId] || []"
+                        [class.completed]="completedContentIds.has(item.contentId)">
+                        <span class="content-type" [class]="item.contentType?.toLowerCase()">
+                            {{ item.contentType }}
+                        </span>
+                        <span>{{ item.title }}
+                            <a *ngIf="item.filePath" [href]="item.filePath" target="_blank"
+                                class="view-link">(View)</a>
+                        </span>
+                        <span class="duration" *ngIf="item.durationSeconds">{{ item.durationSeconds }}s</span>
+                        <button *ngIf="!isInstructor && enrolled" class="btn-complete"
+                            [class.done]="completedContentIds.has(item.contentId)"
+                            (click)="toggleComplete(item.contentId)">
+                            {{ completedContentIds.has(item.contentId) ? '✓ Done' : 'Mark Done' }}
+                        </button>
+                    </div>
+
+                    <div class="assignment-item sub-item-card"
+                        *ngFor="let assignment of moduleAssignments[mod.moduleId] || []">
+                        <div class="assign-header">
+                            <div>
+                                <strong>{{ assignment.title }}</strong>
+                                <div class="due-date" *ngIf="assignment.dueDate">
+                                    Due: {{ assignment.dueDate | date:'medium' }}
+                                </div>
+                            </div>
+                            <span class="marks">{{ assignment.maxMarks }} Marks</span>
+                        </div>
+                        <p class="assign-desc">{{ assignment.description }}</p>
+
+                        <div class="submit-form" *ngIf="!isInstructor && enrolled">
+                            <div *ngIf="!pastSubmissions[assignment.assignmentId]">
+                                <textarea class="textarea input"
+                                    [(ngModel)]="assignmentSubmission[assignment.assignmentId]"
+                                    placeholder="Type your answer or paste a link to your work here..."></textarea>
+                                <button class="btn-primary sm"
+                                    (click)="submitAssignment(assignment.assignmentId)">
+                                    <i class="fa-solid fa-paper-plane"></i> Submit Assignment
+                                </button>
+                            </div>
+
+                            <div *ngIf="pastSubmissions[assignment.assignmentId]"
+                                class="past-submission info-card">
+                                <div class="sub-status">
+                                    <span class="badge"
+                                        [class.graded]="pastSubmissions[assignment.assignmentId].marksAwarded != null">
+                                        {{ pastSubmissions[assignment.assignmentId].marksAwarded != null
+                                            ? 'Graded: ' + pastSubmissions[assignment.assignmentId].marksAwarded + ' / ' + assignment.maxMarks
+                                            : 'Submitted - Pending Grade' }}
+                                    </span>
+                                </div>
+                                <p class="sub-text">
+                                    "{{ pastSubmissions[assignment.assignmentId].submissionText }}"
+                                </p>
+                                <div class="feedback-box info-card"
+                                    *ngIf="pastSubmissions[assignment.assignmentId].feedback">
+                                    <strong>Instructor Feedback:</strong>
+                                    <p>{{ pastSubmissions[assignment.assignmentId].feedback }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div *ngIf="!(moduleContents[mod.moduleId]?.length) && !(moduleAssignments[mod.moduleId]?.length)"
+                        class="empty-state">No content items yet.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TESTS TAB -->
+        <div class="tab-content glassy-card content-card" *ngIf="activeTab === 'tests'">
+            <div *ngIf="tests.length === 0" class="empty-state">No tests available yet.</div>
+            <div class="test-card item-card" *ngFor="let test of tests">
+                <div class="test-info">
+                    <strong>{{ test.title }}</strong>
+                    <span class="test-meta">
+                        <i class="fa-solid fa-clock"></i> {{ test.durationMinutes }} min
+                    </span>
+                </div>
+                <a [routerLink]="['/test', test.testId]" class="btn-primary">
+                    <i class="fa-solid" [class.fa-gear]="isInstructor" [class.fa-play]="!isInstructor"></i>
+                    {{ isInstructor ? 'Manage Test' : 'Take Test' }}
+                </a>
+            </div>
+        </div>
+
+        <!-- DISCUSSIONS TAB -->
+        <div class="tab-content glassy-card content-card" *ngIf="activeTab === 'discussions'">
+            <div class="create-form glassy-card">
+                <h3><i class="fa-solid fa-pen"></i> Start a Discussion</h3>
+                <input [(ngModel)]="newThreadTitle" placeholder="Thread title..." class="input" />
+                <textarea [(ngModel)]="newThreadContent" placeholder="What do you want to discuss?"
+                    class="textarea input"></textarea>
+                <button class="btn-primary" (click)="createThread()">
+                    <i class="fa-solid fa-paper-plane"></i> Post Thread
+                </button>
+            </div>
+
+            <div *ngIf="threads.length === 0" class="empty-state">No discussions yet. Start one!</div>
+            <div class="thread-card item-card" *ngFor="let thread of threads">
+                <div class="thread-header" (click)="toggleThread(thread.threadId)">
+                    <strong>{{ thread.title }}</strong>
+                    <span class="author">by {{ thread.user?.fullName || 'Unknown' }}</span>
+                </div>
+                <p class="thread-body">{{ thread.content }}</p>
+                <div class="thread-replies" *ngIf="expandedThread === thread.threadId">
+                    <div class="reply info-card" *ngFor="let post of threadPosts[thread.threadId] || []">
+                        <strong>{{ post.user?.fullName || 'Unknown' }}:</strong>
+                        <span>{{ post.body }}</span>
+                    </div>
+                    <div class="reply-form">
+                        <input [(ngModel)]="newPostBody[thread.threadId]"
+                            placeholder="Write a reply..." class="input" />
+                        <button class="btn-primary sm" (click)="replyToThread(thread.threadId)">
+                            <i class="fa-solid fa-reply"></i> Reply
+                        </button>
+                    </div>
+                </div>
+                <button class="btn-link" (click)="toggleThread(thread.threadId)">
+                    <i class="fa-solid"
+                        [class.fa-chevron-up]="expandedThread === thread.threadId"
+                        [class.fa-chevron-down]="expandedThread !== thread.threadId"></i>
+                    {{ expandedThread === thread.threadId ? 'Hide replies' : 'Show replies' }}
+                </button>
+            </div>
+        </div>
+
+        <!-- FEEDBACK TAB -->
+        <div class="tab-content glassy-card content-card" *ngIf="activeTab === 'feedback'">
+            <div class="create-form glassy-card" *ngIf="!isInstructor">
+                <div *ngIf="!enrolled" class="enroll-blocked">
+                    <i class="fa-solid fa-lock"></i>
+                    <p>Enroll in this course to leave a review.</p>
+                </div>
+                <ng-container *ngIf="enrolled">
+                    <h3>
+                        <i class="fa-solid" [class.fa-pen]="editingFeedback" [class.fa-star]="!editingFeedback"></i>
+                        {{ editingFeedback ? 'Edit Your Feedback' : 'Leave Feedback' }}
+                    </h3>
+                    <div class="form-row">
+                        <label>Rating:</label>
+                        <select [(ngModel)]="newRating" class="input select-input small">
+                            <option [ngValue]="5" class="option-dark">⭐⭐⭐⭐⭐ (5)</option>
+                            <option [ngValue]="4" class="option-dark">⭐⭐⭐⭐ (4)</option>
+                            <option [ngValue]="3" class="option-dark">⭐⭐⭐ (3)</option>
+                            <option [ngValue]="2" class="option-dark">⭐⭐ (2)</option>
+                            <option [ngValue]="1" class="option-dark">⭐ (1)</option>
+                        </select>
+                    </div>
+                    <textarea [(ngModel)]="newFeedbackMsg" placeholder="Share your experience..."
+                        class="textarea input"></textarea>
+                    <button class="btn-primary" (click)="submitFeedback()">
+                        <i class="fa-solid fa-paper-plane"></i>
+                        {{ editingFeedback ? 'Update Feedback' : 'Submit Feedback' }}
+                    </button>
+                </ng-container>
+            </div>
+
+            <p class="instructor-label" *ngIf="isInstructor">
+                <i class="fa-solid fa-comments"></i> Student Feedback
+            </p>
+
+            <div *ngIf="feedbacks.length === 0" class="empty-state">No feedback yet.</div>
+            <div class="feedback-card item-card" *ngFor="let fb of feedbacks">
+                <div class="feedback-header">
+                    <strong>{{ fb.user?.fullName || 'Anonymous' }}</strong>
+                    <span class="stars">{{ '⭐'.repeat(fb.rating) }}</span>
+                </div>
+                <p>{{ fb.message }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="container loading container-content" *ngIf="loading">
+        <p><i class="fa-solid fa-spinner fa-spin"></i> Loading course...</p>
+    </div>
+</div>

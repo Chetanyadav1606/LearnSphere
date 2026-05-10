@@ -1,0 +1,42 @@
+﻿<section class="auth-section">
+  <!-- Wavy Background -->
+  <div class="wave">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+
+  <!-- Content -->
+  <div class="content auth-container">
+    <form class="form" (ngSubmit)="onSubmit()" novalidate>
+      <div class="title">Welcome,<br><span>sign in to continue</span></div>
+
+      <!-- Error Alert -->
+      <div class="alert alert-error" *ngIf="errorMessage">
+        <i class="fa-solid fa-triangle-exclamation" style="margin-right: 5px;"></i> {{ errorMessage }}
+      </div>
+
+      <div class="input-group">
+        <i class="fa-solid fa-envelope"></i>
+        <input class="input" name="email" placeholder="Email" type="email" [(ngModel)]="email">
+      </div>
+      <div class="input-group">
+        <i class="fa-solid fa-lock"></i>
+        <input class="input" name="password" placeholder="Password" type="password" [(ngModel)]="password">
+      </div>
+
+      <div class="login-with">
+        <!-- Optional Social Logins can go here -->
+      </div>
+
+      <button class="button-confirm" type="submit" [disabled]="loading">
+        <span *ngIf="loading">Signing in...</span>
+        <span *ngIf="!loading">Let's go <i class="fa-solid fa-right-to-bracket" style="margin-left: 5px;"></i></span>
+      </button>
+
+      <div class="auth-footer">
+        Don't have an account? <a routerLink="/register">Register here</a>
+      </div>
+    </form>
+  </div>
+</section>

@@ -1,0 +1,42 @@
+{
+  "name": "book-network-ui",
+  "version": "0.0.0",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve --proxy-config proxy.conf.json",
+    "start:lan": "ng serve --host 0.0.0.0 --port 4200 --proxy-config proxy.conf.json",
+    "dev": "npm run start",
+    "build": "ng build --configuration production",
+    "build:dev": "ng build --configuration development",
+    "watch": "ng build --watch --configuration development",
+    "clean": "powershell -ExecutionPolicy Bypass -File ./scripts/clean-workspace.ps1",
+    "java:check": "powershell -ExecutionPolicy Bypass -File ./scripts/check-java.ps1",
+    "api:test": "powershell -ExecutionPolicy Bypass -File ./scripts/api-smoke-test.ps1",
+    "backend:build": "powershell -ExecutionPolicy Bypass -File ./scripts/build-backend.ps1",
+    "backend:package": "powershell -ExecutionPolicy Bypass -File ./scripts/package-backend.ps1",
+    "mysql:start": "powershell -ExecutionPolicy Bypass -File ./scripts/start-mysql.ps1",
+    "backend:start": "powershell -ExecutionPolicy Bypass -File ./scripts/start-backend.ps1",
+    "dev:full": "powershell -ExecutionPolicy Bypass -File ./scripts/start-dev.ps1"
+  },
+  "private": true,
+  "dependencies": {
+    "@angular/animations": "^17.0.0",
+    "@angular/common": "^17.0.0",
+    "@angular/compiler": "^17.0.0",
+    "@angular/core": "^17.0.0",
+    "@angular/forms": "^17.0.0",
+    "@angular/platform-browser": "^17.0.0",
+    "@angular/platform-browser-dynamic": "^17.0.0",
+    "@angular/router": "^17.0.0",
+    "@fortawesome/fontawesome-free": "^7.2.0",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.3.0",
+    "zone.js": "~0.14.2"
+  },
+  "devDependencies": {
+    "@angular-devkit/build-angular": "^17.0.0",
+    "@angular/cli": "^17.0.0",
+    "@angular/compiler-cli": "^17.0.0",
+    "typescript": "~5.2.2"
+  }
+}

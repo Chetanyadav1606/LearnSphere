@@ -1,0 +1,168 @@
+﻿<div class="page-container">
+    <div class="wave">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+
+    <div class="container container-content">
+
+        <!-- Loading -->
+        <div *ngIf="phase === 'loading'" class="center-msg glassy-card item-card">
+            <p>Loading test...</p>
+        </div>
+
+        <!-- Instructor: Question Management -->
+        <div *ngIf="isInstructor" class="instructor-panel">
+            <h2><i class="fa-solid fa-list-check"></i> Manage Test Questions</h2>
+            <p class="meta">{{ questions.length }} question(s) in this test</p>
+
+            <div class="create-form glassy-card sub-item-card">
+                <h3><i class="fa-solid fa-circle-plus"></i> Add Question</h3>
+                <div class="form-row">
+                    <select [(ngModel)]="newQType" class="input select-input small">
+                        <option value="MCQ" class="option-dark">MCQ</option>
+                        <option value="TF" class="option-dark">True/False</option>
+                        <option value="TEXT" class="option-dark">Text</option>
+                    </select>
+                    <input [(ngModel)]="newQMarks" type="number" class="input small" placeholder="Marks" />
+                </div>
+                <textarea [(ngModel)]="newQBody" placeholder="Question body..."
+                    class="textarea input" style="margin-top: 15px;"></textarea>
+
+                <div *ngIf="newQType === 'MCQ'" class="mcq-builder">
+                    <label><strong>MCQ Options:</strong></label>
+                    <div *ngFor="let opt of mcqOptions; let i = index; trackBy: trackByIdx" class="mcq-option-row">
+                        <input type="radio" name="correctOpt" [value]="mcqOptions[i]"
+                            [(ngModel)]="newQCorrect" title="Mark as correct answer" />
+                        <input [(ngModel)]="mcqOptions[i]" placeholder="Option {{i + 1}}"
+                            class="input sm" style="flex: 1; margin-bottom: 0;" />
+                        <button class="btn-icon" (click)="removeOption(i)"
+                            *ngIf="mcqOptions.length > 2" title="Remove option">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                    <button class="btn-link" (click)="addOption()">
+                        <i class="fa-solid fa-plus"></i> Add Option
+                    </button>
+                    <p class="mcq-hint">Select the radio button next to the correct option</p>
+                </div>
+
+                <input *ngIf="newQType !== 'MCQ'" [(ngModel)]="newQCorrect"
+                    placeholder="Correct answer" class="input" style="margin-top: 15px;" />
+
+                <button class="btn-primary" style="margin-top: 20px;" (click)="addQuestion()">
+                    <i class="fa-solid fa-plus"></i> Add Question
+                </button>
+            </div>
+
+            <div class="question-list">
+                <div class="question-card item-card glassy-card" *ngFor="let q of questions; let i = index">
+                    <div class="q-header">
+                        <span class="q-number">Q{{ i + 1 }}</span>
+                        <span class="q-type">{{ q.questionType }}</span>
+                        <span class="q-marks">{{ q.marks }} marks</span>
+                        <button class="btn-icon" (click)="deleteQuestion(q.questionId)" title="Delete Question">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                    <p class="q-body">{{ q.body }}</p>
+                    <p class="q-answer info-card">
+                        <i class="fa-solid fa-check"></i> Answer: <strong>{{ q.correctAnswer }}</strong>
+                    </p>
+                </div>
+            </div>
+
+            <button class="btn-back" (click)="goBack()" style="margin-top: 20px;">
+                <i class="fa-solid fa-arrow-left"></i> Back to Course
+            </button>
+        </div>
+
+        <!-- Student: Start Screen -->
+        <div *ngIf="!isInstructor && phase === 'start'" class="start-screen">
+            <div class="start-card glassy-card item-card">
+                <h2><i class="fa-solid fa-circle-play"></i> Ready to begin?</h2>
+                <p class="subtitle">This test has <strong>{{ questions.length }}</strong> question(s).</p>
+                <p class="hint">Once you start, answer all questions and submit when done.</p>
+                <button class="btn-primary" (click)="startTest()">
+                    <i class="fa-solid fa-play"></i> Start Test
+                </button>
+                <br>
+                <button class="btn-back link-style" (click)="goBack()" style="margin-top: 20px;">
+                    <i class="fa-solid fa-arrow-left"></i> Back to Course
+                </button>
+            </div>
+        </div>
+
+        <!-- Student: In Progress -->
+        <div *ngIf="!isInstructor && phase === 'in-progress'">
+            <h2 class="in-progress-title">
+                <i class="fa-solid fa-pen-to-square"></i> Answer the Questions
+            </h2>
+
+            <div class="question-card glassy-card item-card"
+                *ngFor="let q of questions; let i = index" style="margin-bottom: 20px;">
+                <div class="q-header">
+                    <span class="q-number">Q{{ i + 1 }}</span>
+                    <span class="q-type">{{ q.questionType }}</span>
+                    <span class="q-marks">{{ q.marks }} marks</span>
+                </div>
+                <p class="q-body">{{ q.body }}</p>
+
+                <!-- MCQ -->
+                <div *ngIf="q.questionType === 'MCQ'" class="options">
+                    <label *ngFor="let opt of (q.extra | json) ? getOptions(q) : []" class="option-label">
+                        <input type="radio" [name]="'q' + q.questionId" [value]="opt"
+                            [(ngModel)]="answers[q.questionId]" />
+                        <span>{{ opt }}</span>
+                    </label>
+                </div>
+
+                <!-- True/False -->
+                <div *ngIf="q.questionType === 'TF'" class="options">
+                    <label class="option-label">
+                        <input type="radio" [name]="'q' + q.questionId" value="True"
+                            [(ngModel)]="answers[q.questionId]" />
+                        <span>True</span>
+                    </label>
+                    <label class="option-label">
+                        <input type="radio" [name]="'q' + q.questionId" value="False"
+                            [(ngModel)]="answers[q.questionId]" />
+                        <span>False</span>
+                    </label>
+                </div>
+
+                <!-- Text -->
+                <div *ngIf="q.questionType === 'TEXT'">
+                    <textarea [(ngModel)]="answers[q.questionId]"
+                        placeholder="Type your detailed answer here..."
+                        class="textarea input" style="height: 150px;"></textarea>
+                </div>
+            </div>
+
+            <div class="submit-row">
+                <button class="btn-submit" (click)="submitTest()">
+                    <i class="fa-solid fa-paper-plane"></i> Submit Test
+                </button>
+            </div>
+        </div>
+
+        <!-- Student: Submitted -->
+        <div *ngIf="!isInstructor && phase === 'submitted'" class="result-screen">
+            <div class="result-card glassy-card item-card">
+                <h2><i class="fa-solid fa-circle-check"></i> Test Submitted!</h2>
+                <div class="score-box">
+                    <p *ngIf="score !== null">
+                        Your score:
+                        <strong>{{ score }}</strong>
+                    </p>
+                    <p *ngIf="score === null">Your attempt has been recorded successfully.</p>
+                </div>
+                <button class="btn-back" (click)="goBack()">
+                    <i class="fa-solid fa-arrow-left"></i> Back to Course
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>

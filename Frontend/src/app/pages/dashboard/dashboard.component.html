@@ -1,0 +1,54 @@
+﻿<div class="page-container">
+  <!-- Wavy Background -->
+  <div class="wave">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+
+  <div class="dashboard-content">
+    <!-- Welcome Banner -->
+    <div class="welcome-banner glassy-card anim-fade-up delay-1">
+      <h1 *ngIf="!isInstructor">Welcome back, {{ user?.fullName || 'Student' }}! <i class="fa-solid fa-hand-sparkles"
+          style="color: #ffd43b;"></i></h1>
+      <h1 *ngIf="isInstructor">Instructor Dashboard <i class="fa-solid fa-chalkboard-user"></i></h1>
+      <p *ngIf="!isInstructor">Your learning journey continues here.</p>
+      <p *ngIf="isInstructor">Manage your courses, tests, and student progress.</p>
+    </div>
+
+    <!-- Courses Section -->
+    <div class="section anim-fade-up delay-2">
+      <div class="section-header glassy-card">
+        <h2>{{ isInstructor ? 'Your Courses' : 'Available Courses' }}</h2>
+        <div class="header-actions">
+          <a *ngIf="isInstructor" routerLink="/manage-course/new" class="btn-primary"><i class="fa-solid fa-plus"
+              style="margin-right: 5px;"></i> Create Course</a>
+          <a routerLink="/courses" class="btn-secondary">View All <i class="fa-solid fa-arrow-right"
+              style="margin-left: 5px;"></i></a>
+        </div>
+      </div>
+
+      <div class="course-grid" *ngIf="courses.length > 0">
+        <a [routerLink]="isInstructor ? ['/manage-course', c.courseId] : ['/course', c.courseId]"
+          class="course-card glassy-card anim-zoom-in" [style.animation-delay]="(i * 0.08) + 's'"
+          *ngFor="let c of courses; let i = index">
+          <div class="card-image-wrapper" *ngIf="c.imageUrl">
+            <img [src]="c.imageUrl" class="course-cover" alt="Course Image" />
+          </div>
+          <div class="course-content">
+            <span class="course-card-badge" [class.draft]="!c.isPublished">{{ c.isPublished ? (c.department?.name ||
+              'General') : 'Draft' }}</span>
+            <h3>{{ c.title }}</h3>
+            <p class="course-desc">{{ c.description }}</p>
+            <span class="course-meta">By {{ c.creator?.fullName || 'Unknown' }}</span>
+          </div>
+        </a>
+      </div>
+
+      <div class="empty-state glassy-card anim-fade-in delay-3" *ngIf="courses.length === 0">
+        <i class="fa-solid fa-box-open empty-icon"></i>
+        <p>No courses available yet. Check back soon!</p>
+      </div>
+    </div>
+  </div>
+</div>

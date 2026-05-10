@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+
+# Angular build output and cache
+.angular/
+dist/
+out-tsc/
+backend/.m2/
+backend/target/
+
+# Logs and transient output
+*.log
+build-output.txt
+build_output.txt
+build_output2.txt
+build_utf8.log
+mvn-err.log
+mvn-errors.txt
+
+# Local environment artifacts
+mysql-data/
+history.txt
+loginids.txt
+
+# Bundled or downloaded archives
+*.zip
+
+# OS/editor clutter
+.DS_Store
+Thumbs.db

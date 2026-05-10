@@ -1,0 +1,68 @@
+﻿<div class="page-container">
+    <!-- Wavy Background -->
+    <div class="wave">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+
+    <div class="page-content">
+        <div class="page-header glassy-card">
+            <h1 class="page-title"><i class="fa-solid fa-compass" style="margin-right: 10px;"></i> Browse Courses</h1>
+
+            <!-- Search & Filters Bar -->
+            <div class="filter-bar">
+                <div class="search-box">
+                    <input type="text" [(ngModel)]="searchQuery" (input)="applyFilters()"
+                        placeholder="Search courses, topics, instructors..." class="search-input input" />
+                </div>
+
+                <select [(ngModel)]="selectedDept" (change)="applyFilters()" class="filter-select input select-input">
+                    <option value="" class="option-dark">All Departments</option>
+                    <option *ngFor="let d of departments" [value]="d" class="option-dark">{{ d }}</option>
+                </select>
+
+                <select [(ngModel)]="sortBy" (change)="applyFilters()" class="filter-select input select-input">
+                    <option value="title" class="option-dark">Sort: A-Z</option>
+                    <option value="rating" class="option-dark">Sort: Highest Rated</option>
+                    <option value="department" class="option-dark">Sort: Department</option>
+                </select>
+
+                <button class="btn-clear" (click)="clearFilters()" *ngIf="searchQuery || selectedDept"><i
+                        class="fa-solid fa-xmark"></i> Clear</button>
+            </div>
+
+            <p class="results-count">{{ filteredCourses.length }} course(s) found</p>
+        </div>
+
+        <!-- Course Grid -->
+        <div class="course-grid">
+            <a [routerLink]="['/course', c.courseId]" class="course-card glassy-card" *ngFor="let c of filteredCourses">
+                <div class="card-image-wrapper" *ngIf="c.imageUrl">
+                    <img [src]="c.imageUrl" class="course-cover" alt="Course Image" />
+                </div>
+                <div class="course-content">
+                    <div class="card-top">
+                        <span class="dept-badge">{{ c.department?.name || 'General' }}</span>
+                        <span class="rating-badge" *ngIf="getRating(c.courseId) > 0">
+                            <i class="fa-solid fa-star" style="color: #ffd43b; margin-right: 3px;"></i> {{
+                            getRating(c.courseId) }}
+                        </span>
+                    </div>
+                    <h3>{{ c.title }}</h3>
+                    <p class="desc">{{ c.description }}</p>
+                    <div class="card-footer">
+                        <span class="creator"><i class="fa-solid fa-user-pen" style="margin-right: 5px;"></i> {{
+                            c.creator?.fullName || 'Unknown' }}</span>
+                        <span class="stars">{{ getStars(c.courseId) }}</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="empty glassy-card" *ngIf="filteredCourses.length === 0">
+            <h3>No courses match your search </h3>
+            <p>Try different keywords or clear filters.</p>
+        </div>
+    </div>
+</div>
