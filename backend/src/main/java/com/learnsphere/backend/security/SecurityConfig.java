@@ -14,6 +14,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
 import java.util.Arrays;
 import java.util.List;
@@ -48,7 +49,7 @@ public class SecurityConfig {
      * 
      * Configures CORS to allow:
      * - Frontend origin: https://learn-spherel.vercel.app
-     * - Methods: GET, POST, PUT, DELETE, OPTIONS, PATCH
+     * - Methods: GET, POST, PUT, DELETE, OPTIONS, PATCH, HEAD
      * - Headers: Authorization, Content-Type, etc.
      * - Credentials: true (for cookies/auth headers)
      */
@@ -59,35 +60,29 @@ public class SecurityConfig {
         // Allow the Vercel frontend origin
         configuration.setAllowedOrigins(List.of(
             "https://learn-spherel.vercel.app",
-            "http://localhost:4200",      // Local Angular dev
-            "http://localhost:3000"       // Alternative local
+            "http://localhost:4200",
+            "http://localhost:3000"
         ));
         
-        // Allow all HTTP methods including OPTIONS for preflight
+        // Allow all HTTP methods
         configuration.setAllowedMethods(Arrays.asList(
             "GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD"
         ));
         
-        // Allow common headers needed for API calls
-        configuration.setAllowedHeaders(Arrays.asList(
-            "Authorization",
-            "Content-Type",
-            "Accept",
-            "X-Requested-With",
-            "Access-Control-Request-Method",
-            "Access-Control-Request-Headers"
-        ));
+        // Allow all headers
+        configuration.setAllowedHeaders(Arrays.asList("*"));
         
         // Expose headers to frontend
         configuration.setExposedHeaders(Arrays.asList(
             "Authorization",
-            "Content-Type"
+            "Content-Type",
+            "X-Total-Count"
         ));
         
-        // Allow credentials (cookies, auth headers)
+        // Allow credentials
         configuration.setAllowCredentials(true);
         
-        // Cache preflight for 1 hour
+        // Cache preflight
         configuration.setMaxAge(3600L);
         
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -97,42 +92,33 @@ public class SecurityConfig {
     }
 
     /**
+     * CORS Filter Bean - Applies CORS before Spring Security
+     */
+    @Bean
+    public CorsFilter corsFilter() {
+        return new CorsFilter(corsConfigurationSource());
+    }
+
+    /**
      * Security Filter Chain - DEBUGGING MODE
      * 
-     * Temporarily permissive configuration for debugging 403 errors:
-     * - All requests are allowed
-     * - CSRF disabled
-     * - CORS fully enabled
-     * - JWT filter disabled temporarily
-     * 
-     * NOTE: This is for debugging only. After fixing issues, re-enable JWT authentication.
+     * All requests allowed, CORS fully enabled
      */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            // Enable CORS with the configuration above
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            
-            // Disable CSRF for API endpoints (stateless API)
+            // Disable CSRF for API
             .csrf(csrf -> csrf.disable())
             
-            // Allow all requests for debugging (temporary)
+            // Disable authentication check for debugging
             .authorizeHttpRequests(authz -> authz
-                // Allow all OPTIONS requests globally (preflight)
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                
-                // Allow all requests for debugging
                 .anyRequest().permitAll()
             )
             
-            // Use stateless session management
+            // Use stateless session
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             );
-        
-        // JWT filter disabled temporarily for debugging
-        // Uncomment the line below when ready to re-enable JWT authentication:
-        // .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         
         return http.build();
     }
