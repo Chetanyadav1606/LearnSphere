@@ -1,33 +1,11 @@
 {
   "buildCommand": "NODE_OPTIONS=--max-old-space-size=4096 npm run build",
   "installCommand": "npm install",
-  "outputDirectory": "dist/book-network-ui/browser",
-  "framework": null,
-  "nodeVersion": "20.x",
+  "outputDirectory": "dist/book-network-ui",
   "rewrites": [
     {
       "source": "/(.*)",
       "destination": "/index.html"
-    }
-  ],
-  "headers": [
-    {
-      "source": "/assets/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=31536000, immutable"
-        }
-      ]
-    },
-    {
-      "source": "/(.*\\.js|.*\\.css)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=31536000, immutable"
-        }
-      ]
     }
   ]
 }
