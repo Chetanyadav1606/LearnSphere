@@ -114,6 +114,7 @@ public class SecurityConfig {
             
             // Disable authentication check for debugging
             .authorizeHttpRequests(authz -> authz
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .anyRequest().permitAll()
             )
             
