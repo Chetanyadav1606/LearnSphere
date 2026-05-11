@@ -14,7 +14,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
 
 import java.util.Arrays;
 import java.util.List;
@@ -59,7 +58,7 @@ public class SecurityConfig {
         
         // Allow the Vercel frontend origin
         configuration.setAllowedOrigins(List.of(
-            "https://learn-spherel.vercel.app",
+            "https://learnsphere-campus.vercel.app",
             "http://localhost:4200",
             "http://localhost:3000"
         ));
@@ -69,8 +68,16 @@ public class SecurityConfig {
             "GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD"
         ));
         
-        // Allow all headers
-        configuration.setAllowedHeaders(Arrays.asList("*"));
+        // Allow all common headers
+        configuration.setAllowedHeaders(Arrays.asList(
+            "Origin",
+            "Content-Type",
+            "Accept",
+            "Authorization",
+            "X-Requested-With",
+            "Access-Control-Request-Method",
+            "Access-Control-Request-Headers"
+        ));
         
         // Expose headers to frontend
         configuration.setExposedHeaders(Arrays.asList(
@@ -92,14 +99,6 @@ public class SecurityConfig {
     }
 
     /**
-     * CORS Filter Bean - Applies CORS before Spring Security
-     */
-    @Bean
-    public CorsFilter corsFilter() {
-        return new CorsFilter(corsConfigurationSource());
-    }
-
-    /**
      * Security Filter Chain - DEBUGGING MODE
      * 
      * All requests allowed, CORS fully enabled
@@ -107,6 +106,9 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+            // Enable CORS with the configuration source
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            
             // Disable CSRF for API
             .csrf(csrf -> csrf.disable())
             
