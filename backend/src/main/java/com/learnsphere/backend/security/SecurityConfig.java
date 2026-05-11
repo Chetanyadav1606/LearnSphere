@@ -21,12 +21,17 @@ import java.util.List;
 /**
  * SecurityConfig - Spring Security & CORS Configuration
  * 
- * This configuration:
- * 1. Enables CORS for the Vercel frontend
- * 2. Allows preflight OPTIONS requests globally
- * 3. Makes /api/auth/** endpoints public for login/register
- * 4. Protects other endpoints with JWT authentication
- * 5. Configures stateless session management
+ * DEBUGGING MODE - Temporarily permissive for troubleshooting 403 errors
+ * 
+ * Current configuration:
+ * 1. CORS enabled for Vercel frontend (https://learn-spherel.vercel.app)
+ * 2. All OPTIONS preflight requests permitted
+ * 3. All requests allowed (JWT disabled for debugging)
+ * 4. CSRF disabled
+ * 5. Stateless session management
+ * 
+ * PRODUCTION FIX: Re-enable JWT authentication by uncommenting the line in securityFilterChain()
+ * and changing .anyRequest().permitAll() to .anyRequest().authenticated()
  */
 @Configuration
 @EnableWebSecurity
@@ -92,12 +97,15 @@ public class SecurityConfig {
     }
 
     /**
-     * Security Filter Chain
+     * Security Filter Chain - DEBUGGING MODE
      * 
-     * Defines URL access rules:
-     * - OPTIONS requests are always allowed (preflight)
-     * - /api/auth/** is publicly accessible (login/register)
-     * - All other endpoints require authentication with valid JWT
+     * Temporarily permissive configuration for debugging 403 errors:
+     * - All requests are allowed
+     * - CSRF disabled
+     * - CORS fully enabled
+     * - JWT filter disabled temporarily
+     * 
+     * NOTE: This is for debugging only. After fixing issues, re-enable JWT authentication.
      */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -105,33 +113,26 @@ public class SecurityConfig {
             // Enable CORS with the configuration above
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             
-            // Disable CSRF for API endpoints (stateless JWT auth doesn't need CSRF)
+            // Disable CSRF for API endpoints (stateless API)
             .csrf(csrf -> csrf.disable())
             
-            // Configure authorization rules
+            // Allow all requests for debugging (temporary)
             .authorizeHttpRequests(authz -> authz
-                // Allow OPTIONS requests globally (preflight)
+                // Allow all OPTIONS requests globally (preflight)
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 
-                // Allow public access to auth endpoints
-                .requestMatchers("/api/auth/register").permitAll()
-                .requestMatchers("/api/auth/login").permitAll()
-                .requestMatchers("/api/auth/**").permitAll()
-                
-                // Allow health check endpoint if exists
-                .requestMatchers("/actuator/**").permitAll()
-                
-                // Require authentication for all other endpoints
-                .anyRequest().authenticated()
+                // Allow all requests for debugging
+                .anyRequest().permitAll()
             )
             
-            // Use stateless session management (JWT doesn't use sessions)
+            // Use stateless session management
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            )
-            
-            // Add JWT filter before UsernamePasswordAuthenticationFilter
-            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+            );
+        
+        // JWT filter disabled temporarily for debugging
+        // Uncomment the line below when ready to re-enable JWT authentication:
+        // .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         
         return http.build();
     }
